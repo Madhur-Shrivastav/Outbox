@@ -7,6 +7,8 @@ import {
   RefreshCw,
   Plus,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -55,6 +57,9 @@ export default function Dashboard() {
   const [slackWorkspace, setSlackWorkspace] = useState("");
   const [slackChannel, setSlackChannel] = useState("");
   const [slackLoading, setSlackLoading] = useState(false);
+
+  // Mobile sidebar drawer
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   async function loadSlackStatus() {
     if (!user) return;
@@ -180,6 +185,12 @@ export default function Dashboard() {
     }
   }, [user]);
 
+  // Close the mobile drawer whenever the user switches tabs/compose/detail
+  function selectTab(tab: Tab) {
+    setActiveTab(tab);
+    setSidebarOpen(false);
+  }
+
   if (selectedEmail) {
     return (
       <EmailDetail
@@ -204,10 +215,29 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#f7f8f7] text-[#171918]">
       <div className="mx-auto flex min-h-screen max-w-[1440px] bg-white">
+        {/* SIDEBAR BACKDROP (mobile only) */}
+        {sidebarOpen && (
+          <div
+            onClick={() => setSidebarOpen(false)}
+            className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+          />
+        )}
+
         {/* SIDEBAR */}
-        <aside className="flex w-[245px] shrink-0 flex-col border-r border-[#eeeeee] px-5 py-6">
-          <div className="mb-6 px-2">
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 flex w-[245px] max-w-[80vw] shrink-0 transform flex-col border-r border-[#eeeeee] bg-white px-5 py-6 transition-transform duration-200 ease-in-out lg:static lg:z-auto lg:max-w-none lg:translate-x-0 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="mb-6 flex items-center justify-between px-2">
             <h1 className="text-[25px] font-black tracking-[-1.5px]">OUTBOX</h1>
+
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="rounded-full p-1 text-gray-400 hover:bg-gray-100 lg:hidden"
+            >
+              <X size={18} />
+            </button>
           </div>
 
           {/* Profile */}
@@ -217,10 +247,10 @@ export default function Dashboard() {
                 <img
                   src={user.photoURL}
                   alt="Profile"
-                  className="h-9 w-9 rounded-full object-cover"
+                  className="h-9 w-9 shrink-0 rounded-full object-cover"
                 />
               ) : (
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#d9dedb] text-sm font-semibold">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#d9dedb] text-sm font-semibold">
                   {user?.displayName?.charAt(0) || "U"}
                 </div>
               )}
@@ -235,13 +265,16 @@ export default function Dashboard() {
                 </p>
               </div>
 
-              <span className="text-gray-400">⌄</span>
+              <span className="shrink-0 text-gray-400">⌄</span>
             </div>
           </div>
 
           {/* Compose */}
           <button
-            onClick={() => setShowCompose(true)}
+            onClick={() => {
+              setShowCompose(true);
+              setSidebarOpen(false);
+            }}
             className="mb-7 flex h-9 w-full items-center justify-center rounded-full border border-[#18a957] text-[12px] font-medium text-[#15994d] transition hover:bg-[#effaf3]"
           >
             <Plus size={14} className="mr-1" />
@@ -255,7 +288,7 @@ export default function Dashboard() {
             </p>
 
             <button
-              onClick={() => setActiveTab("scheduled")}
+              onClick={() => selectTab("scheduled")}
               className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-[12px] ${
                 activeTab === "scheduled"
                   ? "bg-[#e8f7ee] text-gray-900"
@@ -275,7 +308,7 @@ export default function Dashboard() {
             </button>
 
             <button
-              onClick={() => setActiveTab("sent")}
+              onClick={() => selectTab("sent")}
               className={`mt-1 flex w-full items-center justify-between rounded-lg px-3 py-2 text-[12px] ${
                 activeTab === "sent"
                   ? "bg-[#e8f7ee] text-gray-900"
@@ -318,7 +351,7 @@ export default function Dashboard() {
             ) : (
               <div className="rounded-xl border border-[#eeeeee] bg-[#fafafa] p-3">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-md bg-[#4A154B] text-[10px] font-bold text-white">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#4A154B] text-[10px] font-bold text-white">
                     #
                   </span>
 
@@ -332,7 +365,7 @@ export default function Dashboard() {
                     </p>
                   </div>
 
-                  <span className="h-2 w-2 rounded-full bg-[#18a957]" />
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-[#18a957]" />
                 </div>
 
                 <button
@@ -360,8 +393,15 @@ export default function Dashboard() {
         {/* MAIN */}
         <main className="min-w-0 flex-1">
           {/* Search bar */}
-          <div className="flex h-[72px] items-center gap-3 border-b border-[#eeeeee] px-7">
-            <div className="relative max-w-[580px] flex-1">
+          <div className="flex h-[64px] items-center gap-2 border-b border-[#eeeeee] px-4 sm:h-[72px] sm:gap-3 sm:px-7">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="shrink-0 rounded-full p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
+            >
+              <Menu size={18} />
+            </button>
+
+            <div className="relative min-w-0 max-w-[580px] flex-1">
               <Search
                 size={14}
                 className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
@@ -375,19 +415,19 @@ export default function Dashboard() {
                 className="h-9 w-full rounded-full bg-[#f3f5f4] pl-10 pr-4 text-[11px] outline-none placeholder:text-gray-400 focus:ring-1 focus:ring-[#18a957]"
               />
               {searching && (
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">
+                <span className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-[10px] text-gray-400 sm:inline">
                   Searching...
                 </span>
               )}
             </div>
 
-            <button className="rounded-full p-2 text-gray-400 hover:bg-gray-100">
+            <button className="hidden shrink-0 rounded-full p-2 text-gray-400 hover:bg-gray-100 sm:block">
               <SlidersHorizontal size={14} />
             </button>
 
             <button
               onClick={loadEmails}
-              className="rounded-full p-2 text-gray-400 hover:bg-gray-100"
+              className="shrink-0 rounded-full p-2 text-gray-400 hover:bg-gray-100"
             >
               <RefreshCw size={14} />
             </button>
@@ -412,7 +452,7 @@ export default function Dashboard() {
               </div>
             </div>
           ) : emails && emails.length === 0 ? (
-            <div className="flex min-h-[400px] flex-col items-center justify-center text-center">
+            <div className="flex min-h-[400px] flex-col items-center justify-center px-4 text-center">
               <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#f3f5f4]">
                 {activeTab === "scheduled" ? (
                   <Clock3 size={20} className="text-gray-400" />
@@ -468,29 +508,31 @@ function EmailRow({
   return (
     <div
       onClick={onClick}
-      className="flex min-h-[52px] cursor-pointer items-center border-b border-[#f0f0f0] px-7 text-[11px] hover:bg-[#fafafa]"
+      className="flex min-h-[52px] cursor-pointer flex-wrap items-center gap-y-1 border-b border-[#f0f0f0] px-4 py-2 text-[11px] hover:bg-[#fafafa] sm:flex-nowrap sm:px-7 sm:py-0"
     >
-      <div className="w-[150px] shrink-0 truncate">
+      <div className="w-full shrink-0 truncate order-1 sm:order-none sm:w-[150px]">
         <span className="text-gray-800">To: {email.recipient}</span>
       </div>
 
       {scheduled ? (
-        <div className="mr-3 shrink-0 rounded-full bg-[#fff0df] px-2 py-1 text-[9px] text-[#ed8b32]">
+        <div className="order-3 mr-3 shrink-0 rounded-full bg-[#fff0df] px-2 py-1 text-[9px] text-[#ed8b32] sm:order-none">
           ◷ {date ? formatDate(date) : "Scheduled"}
         </div>
       ) : (
-        <div className="mr-3 shrink-0 rounded-full bg-[#f1f3f2] px-2 py-1 text-[9px] text-gray-500">
+        <div className="order-3 mr-3 shrink-0 rounded-full bg-[#f1f3f2] px-2 py-1 text-[9px] text-gray-500 sm:order-none">
           Sent
         </div>
       )}
 
-      <div className="min-w-0 flex-1 truncate">
+      <div className="order-2 min-w-0 flex-1 truncate sm:order-none">
         <span className="font-medium text-gray-800">{email.subject}</span>
 
         <span className="ml-1 text-gray-400">- {email.body}</span>
       </div>
 
-      <button className="ml-4 text-gray-300 hover:text-gray-600">☆</button>
+      <button className="order-4 ml-auto text-gray-300 hover:text-gray-600 sm:ml-4 sm:order-none">
+        ☆
+      </button>
     </div>
   );
 }
