@@ -114,7 +114,9 @@ export default function ComposeEmail({
         return Array.from(new Set([...current, ...uploadedRecipients]));
       });
 
-      setSuccess(`${uploadedRecipients.length} leads detected and added.`);
+      setSuccess(
+        `${uploadedRecipients && uploadedRecipients.length} leads detected and added.`,
+      );
     } catch (error) {
       console.error("CSV upload failed:", error);
       setError("Unable to upload CSV.");
@@ -136,7 +138,7 @@ export default function ComposeEmail({
       return;
     }
 
-    if (recipients.length === 0) {
+    if (recipients && recipients.length === 0) {
       setError("Please add at least one recipient.");
       return;
     }
@@ -262,7 +264,7 @@ export default function ComposeEmail({
               onChange={(event) => setSenderEmail(event.target.value)}
               className="max-w-full rounded-lg bg-[#f5f7f6] px-3 py-2 text-[11px] outline-none focus:ring-1 focus:ring-[#18a957]"
             >
-              {senders.length === 0 ? (
+              {senders && senders.length === 0 ? (
                 <option value="">No sender connected</option>
               ) : (
                 senders.map((sender) => (
@@ -416,7 +418,7 @@ export default function ComposeEmail({
           </div>
         )}
 
-        {recipients.length > 0 && (
+        {recipients && recipients.length > 0 && (
           <div className="mt-4 flex items-center gap-2 text-[10px] text-gray-400">
             <Upload size={12} />
             {recipients.length} recipient
@@ -466,7 +468,7 @@ export default function ComposeEmail({
                   <p className="text-[9px] text-gray-400">Recipients</p>
 
                   <p className="mt-1 text-[13px] font-semibold text-gray-800">
-                    {recipients.length}
+                    {recipients && recipients.length}
                   </p>
                 </div>
 
