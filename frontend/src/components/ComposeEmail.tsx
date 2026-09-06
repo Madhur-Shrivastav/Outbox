@@ -267,6 +267,7 @@ export default function ComposeEmail({
               {senders && senders.length === 0 ? (
                 <option value="">No sender connected</option>
               ) : (
+                senders &&
                 senders.map((sender) => (
                   <option key={sender.id} value={sender.email}>
                     {sender.displayName
