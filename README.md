@@ -199,6 +199,40 @@ Redis Rate Limiter
                                 ▼
                          Elasticsearch
 ```
+---
+
+## Deployment
+
+The application is deployed on Railway using separate services for:
+
+- React/Vite frontend
+- Express/TypeScript backend
+- BullMQ email worker
+- PostgreSQL
+- Redis
+
+### Deployment Limitation
+
+The application uses **Ethereal SMTP** as the required fake SMTP provider.
+
+The email scheduling pipeline, PostgreSQL persistence, Redis/BullMQ delayed jobs, worker processing, distributed rate limiting, and retry/error handling are implemented.
+
+However, the Railway Free/Trial/Hobby hosting environment restricts outbound SMTP connections. As a result, the deployed worker may encounter an SMTP `Connection timeout` when attempting to connect to Ethereal.
+
+This is a hosting-network restriction rather than an application-level scheduling or BullMQ worker failure.
+
+The complete SMTP delivery flow works locally with Ethereal:
+
+1. Email is persisted in PostgreSQL.
+2. A delayed BullMQ job is created in Redis.
+3. The worker processes the job at the scheduled time.
+4. The worker connects to Ethereal SMTP.
+5. The email is marked as `SENT`.
+6. An Ethereal preview URL is generated.
+
+For the hosted deployment, the application, authentication, database, Redis queue, scheduling, worker, rate limiting, Elasticsearch integration, and Slack integration can be inspected through the deployed system.
+
+> **Note:** Ethereal is a fake SMTP service and does not deliver emails to real recipient inboxes. Successfully sent messages are available through an Ethereal preview URL.
 
 ## Demo Credentials
 
