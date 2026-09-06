@@ -1,21 +1,24 @@
-import "dotenv/config";
-import fs from "fs";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 
-const serviceAccountPath = "firebase-service-account.json";
+function getFirebaseAdminApp() {
+  if (getApps().length > 0) {
+    return getApps()[0];
+  }
 
-if (!fs.existsSync(serviceAccountPath)) {
-  throw new Error(`Firebase service account not found: ${serviceAccountPath}`);
+  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+
+  if (!serviceAccountJson) {
+    throw new Error("FIREBASE_SERVICE_ACCOUNT_JSON not found");
+  }
+
+  const serviceAccount = JSON.parse(serviceAccountJson);
+
+  return initializeApp({
+    credential: cert(serviceAccount),
+  });
 }
 
-const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf-8"));
+const firebaseAdminApp = getFirebaseAdminApp();
 
-const firebaseApp =
-  getApps().length > 0
-    ? getApps()[0]
-    : initializeApp({
-        credential: cert(serviceAccount),
-      });
-
-export const firebaseAdminAuth = getAuth(firebaseApp);
+export const firebaseAdminAuth = getAuth(firebaseAdminApp);
