@@ -107,7 +107,7 @@ export default function ComposeEmail({
       const result = await uploadLeads(token, file);
 
       const uploadedRecipients = result.leads
-        .map((lead: { email: string }) => lead.email)
+        ?.map((lead: { email: string }) => lead.email)
         .filter(Boolean);
 
       setRecipients((current) => {
@@ -267,7 +267,6 @@ export default function ComposeEmail({
               {senders && senders.length === 0 ? (
                 <option value="">No sender connected</option>
               ) : (
-                senders &&
                 senders.map((sender) => (
                   <option key={sender.id} value={sender.email}>
                     {sender.displayName
@@ -287,22 +286,23 @@ export default function ComposeEmail({
             </label>
 
             <div className="flex min-h-[34px] min-w-0 flex-1 flex-wrap items-center gap-2">
-              {recipients.map((email) => (
-                <span
-                  key={email}
-                  className="flex max-w-full items-center gap-1 rounded-full border border-[#bde8cd] bg-[#effaf3] px-2.5 py-1 text-[10px] text-gray-700"
-                >
-                  <span className="truncate">{email}</span>
-
-                  <button
-                    type="button"
-                    onClick={() => removeRecipient(email)}
-                    className="shrink-0 text-gray-400 hover:text-gray-700"
+              {recipients &&
+                recipients.map((email) => (
+                  <span
+                    key={email}
+                    className="flex max-w-full items-center gap-1 rounded-full border border-[#bde8cd] bg-[#effaf3] px-2.5 py-1 text-[10px] text-gray-700"
                   >
-                    <X size={11} />
-                  </button>
-                </span>
-              ))}
+                    <span className="truncate">{email}</span>
+
+                    <button
+                      type="button"
+                      onClick={() => removeRecipient(email)}
+                      className="shrink-0 text-gray-400 hover:text-gray-700"
+                    >
+                      <X size={11} />
+                    </button>
+                  </span>
+                ))}
 
               <input
                 value={recipientInput}
