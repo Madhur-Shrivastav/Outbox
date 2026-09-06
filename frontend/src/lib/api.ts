@@ -71,7 +71,7 @@ export async function getSenders(idToken: string) {
     },
   });
 
-  return response.data.senders;
+  return response.data?.senders ?? [];
 }
 
 export async function uploadLeads(idToken: string, file: File) {

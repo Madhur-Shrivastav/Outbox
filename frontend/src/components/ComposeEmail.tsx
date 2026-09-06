@@ -48,13 +48,16 @@ export default function ComposeEmail({
         const token = await user.getIdToken();
         const result = await getSenders(token);
 
-        setSenders(result);
+        const senderList = result ?? [];
 
-        if (result.length > 0) {
-          setSenderEmail(result[0].email);
+        setSenders(senderList);
+
+        if (senderList.length > 0) {
+          setSenderEmail(senderList[0].email);
         }
       } catch (error) {
         console.error("Failed to load senders:", error);
+        setSenders([]);
         setError("Unable to load senders.");
       }
     }
