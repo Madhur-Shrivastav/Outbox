@@ -236,7 +236,7 @@ For the hosted deployment, the application, authentication, database, Redis queu
 
 ## Demo Credentials
 
-Use the following credentials to test the application:
+Use the following credentials to test the application:https://beautiful-charm-production-5233.up.railway.app
 
 | Field    | Value            |
 | -------- | ---------------- |
